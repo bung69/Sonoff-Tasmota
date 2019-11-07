@@ -20,7 +20,7 @@
 #ifdef USE_SPI
 #ifdef USE_AMG
 
-#define XSNS_55              55
+#define XSNS_69              69
 
 // AMG8833 Status and configuration registers
 #define AMG8833_PCTL     0x00
