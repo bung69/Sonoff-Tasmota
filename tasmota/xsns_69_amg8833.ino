@@ -3,6 +3,11 @@
 
   Copyright (C) 2019  Matt Howes
 
+  insperation taken from drivers by:
+      Nick Poole @ SparkFun and 
+      Dean Miller for Adafruit Industries
+      Xose Pérez  (espurna )
+
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -17,10 +22,27 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+/*
+TODO: 
+  * problem solve why not compile outside of Screen env:display
+  * add support for auto deteccting which / multiple sensor address
+  * Web interface readouts
+  * 10hz refesh rate with averaging, interpolation, threashold triggering, blob counting for presence detection FUNC_EVERY_100_MSECOND 
+  * cordinate output of N number of detected blobs for targeted / location based home automation
+  * posibly granular control of above features via defines
+  * aproimate flash, ram and processor usage
+  * write wiki
+  * PR
+*/
+
+
 #ifdef USE_SPI
 #ifdef USE_AMG
 
 #define XSNS_69              69
+
+#warning ****  XSNS_69 is being compiled ****  // compile Debug,  not debugging out side of env:display
 
 // AMG8833 Status and configuration registers
 #define AMG8833_PCTL     0x00
@@ -29,8 +51,11 @@
 #define AMG8833_STAT     0x04  // status register
 #define AMG8833_SCLR     0x05  // status clear register
 #define AMG8833_TTHL     0x0E  // thermister register low
-#define AMG8833_DATA01L  0x80 // first pixel low byte 
-#define AMG8833_ADDRESS 0x69  // 0x68 when ADO = LOW, 0x69 when ADO = HIGH
+#define AMG8833_DATA01L  0x80  // first pixel low byte 
+
+//#define AMG8833_ADDRESS_1  0x68  // 0x68 when ADO = LOW, 0x69 when ADO = HIGH
+#define AMG8833_ADDRESS_2  0x69  // 0x68 when ADO = LOW, 0x69 when ADO = HIGH
+
 
 #define amg8833_PIXEL_ARRAY_SIZE 64
 
@@ -45,15 +70,15 @@ struct AMGSTRUCT {
 
 void amg8833_Detect(void) 
 {
-  if (amg8833_detected) { return; }
+
   uint8_t buffer;
 
-  if (I2cValidRead8(&buffer, AMG8833_ADDRESS, AMG8833_PCTL)) {
-    I2cWrite8(AMG8833_ADDRESS, AMG8833_PCTL, 0x00); // set operating mode (NORMAL_MODE = 0x00, SLEEP_MODE = 0x01, STANDBY_MODE_60SEC = 0x20, STANDBY_MODE_10SEC = 0x21)
-    if (I2cValidRead8(&buffer, AMG8833_ADDRESS, AMG8833_PCTL)) {
+  if (I2cValidRead8(&buffer, AMG8833_ADDRESS_1, AMG8833_PCTL)) {
+    I2cWrite8(AMG8833_ADDRESS_1, AMG8833_PCTL, 0x00); // set operating mode (NORMAL_MODE = 0x00, SLEEP_MODE = 0x01, STANDBY_MODE_60SEC = 0x20, STANDBY_MODE_10SEC = 0x21)
+    if (I2cValidRead8(&buffer, AMG8833_ADDRESS_1, AMG8833_PCTL)) {
       if (0x00 == buffer){
         amg8833_detected =1;
-        AddLog_P2(LOG_LEVEL_DEBUG, S_LOG_I2C_FOUND_AT, "amg8833", AMG8833_ADDRESS);
+        AddLog_P2(LOG_LEVEL_DEBUG, S_LOG_I2C_FOUND_AT, "amg8833", AMG8833_ADDRESS_1);
 
       }else{
         amg8833_detected =0;
@@ -66,9 +91,9 @@ void amg8833_Detect(void)
 void amg8833_Reset(void)
 {
   if (!amg8833_detected) { return; }
-    I2cWrite8(AMG8833_ADDRESS, AMG8833_PCTL, 0x00); // set operating mode (NORMAL_MODE = 0x00, SLEEP_MODE = 0x01, STANDBY_MODE_60SEC = 0x20, STANDBY_MODE_10SEC = 0x21)
-    I2cWrite8(AMG8833_ADDRESS, AMG8833_RST, 0x3F);  // software a reset
-    I2cWrite8(AMG8833_ADDRESS, AMG8833_FPSC, 0x01); // sample rate (0x00 = 10 fps or 0x01 = 1 fps)
+    I2cWrite8(AMG8833_ADDRESS_1, AMG8833_PCTL, 0x00); // set operating mode (NORMAL_MODE = 0x00, SLEEP_MODE = 0x01, STANDBY_MODE_60SEC = 0x20, STANDBY_MODE_10SEC = 0x21)
+    I2cWrite8(AMG8833_ADDRESS_1, AMG8833_RST, 0x3F);  // software a reset
+    I2cWrite8(AMG8833_ADDRESS_1, AMG8833_FPSC, 0x01); // sample rate (0x00 = 10 fps or 0x01 = 1 fps)
 }
 
 void amg8833_Read(void) 
@@ -79,8 +104,8 @@ void amg8833_Read(void)
   uint8_t buffer;
 
 // read thermister
-  if (I2cValidRead8(&buffer, AMG8833_ADDRESS, AMG8833_TTHL)) {
-    thermistorRawData = I2cRead16LE(AMG8833_ADDRESS, AMG8833_TTHL);
+  if (I2cValidRead8(&buffer, AMG8833_ADDRESS_1, AMG8833_TTHL)) {
+    thermistorRawData = I2cRead16LE(AMG8833_ADDRESS_1, AMG8833_TTHL);
     thermistorRawData = thermistorRawData << 4 ;
     thermistorRawData = thermistorRawData >> 4 ;
     AMG.thermistorTemp = ConvertTemp(thermistorRawData * 0.0625f);
@@ -91,8 +116,8 @@ void amg8833_Read(void)
   
  // read pixels
   for (uint8_t start=0; start < size; start++) {
-    if (I2cValidRead8(&buffer, AMG8833_ADDRESS, AMG8833_DATA01L + start * 2)) {
-      pixelRawData[start] = I2cRead16LE(AMG8833_ADDRESS, AMG8833_DATA01L + start * 2 );
+    if (I2cValidRead8(&buffer, AMG8833_ADDRESS_1, AMG8833_DATA01L + start * 2)) {
+      pixelRawData[start] = I2cRead16LE(AMG8833_ADDRESS_1, AMG8833_DATA01L + start * 2 );
       pixelRawData[start] = pixelRawData[start] << 4 ;
       pixelRawData[start] = pixelRawData[start] >> 4 ;
       AMG.pixelTemps[start] = (float) (pixelRawData[start]) * 0.25f;
@@ -156,7 +181,7 @@ void amg8833_Show(bool json)
  * Interface
 \*********************************************************************************************/
 
-bool Xsns55(uint8_t function)
+bool Xsns69(uint8_t function)
 {
   bool result = false;
   if(i2c_flg) {
