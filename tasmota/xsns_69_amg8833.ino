@@ -53,8 +53,8 @@
 #define AMG8833_TTHL     0x0E  // thermister register low
 #define AMG8833_DATA01L  0x80  // first pixel low byte 
 
-//#define AMG8833_ADDRESS_1  0x68  // 0x68 when ADO = LOW, 0x69 when ADO = HIGH
-#define AMG8833_ADDRESS_2  0x69  // 0x68 when ADO = LOW, 0x69 when ADO = HIGH
+#define AMG8833_ADDRESS_1  0x69  // 0x68 when ADO = LOW, 0x69 when ADO = HIGH
+//#define AMG8833_ADDRESS_2  0x68  // 0x68 when ADO = LOW, 0x69 when ADO = HIGH
 
 
 #define amg8833_PIXEL_ARRAY_SIZE 64
