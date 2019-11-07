@@ -37,7 +37,7 @@
 */
 
 
-#ifdef USE_SPI
+#ifdef USE_I2C
 #ifdef USE_AMG
 
 #define XSNS_69          69
