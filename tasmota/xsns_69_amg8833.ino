@@ -42,7 +42,7 @@
 
 #define XSNS_69          69
 
-#warning ****  XSNS_69 is being compiled ****  // compile Debug,  not debugging out side of env:display
+#warning ****  XSNS_69 is being compiled ****  // compile Debug, 
 
 // AMG8833 Status and configuration registers
 #define AMG8833_PCTL     0x00
