@@ -24,16 +24,16 @@
 
 
 /*
-TODO: 
-  * problem solve why not compile outside of Screen env:display
-  * add support for auto deteccting which / multiple sensor address
-  * Web interface readouts
-  * 10hz refesh rate with averaging, interpolation, threashold triggering, blob counting for presence detection FUNC_EVERY_100_MSECOND 
-  * cordinate output of N number of detected blobs for targeted / location based home automation
-  * posibly granular control of above features via defines
-  * aproimate flash, ram and processor usage
-  * write wiki
-  * PR
+  TODO: 
+    * problem solve why not compile outside of Screen env:display
+    * add support for auto deteccting which / multiple sensor address
+    * Web interface readouts
+    * 10hz refesh rate with averaging, interpolation, threashold triggering, blob counting for presence detection FUNC_EVERY_100_MSECOND 
+    * cordinate output of N number of detected blobs for targeted / location based home automation
+    * posibly granular control of above features via defines
+    * aproimate flash, ram and processor usage
+    * write wiki
+    * PR
 */
 
 
