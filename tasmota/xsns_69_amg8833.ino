@@ -40,7 +40,7 @@
 #ifdef USE_SPI
 #ifdef USE_AMG
 
-#define XSNS_69              69
+#define XSNS_69          69
 
 #warning ****  XSNS_69 is being compiled ****  // compile Debug,  not debugging out side of env:display
 
